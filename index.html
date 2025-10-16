@@ -1,0 +1,306 @@
+<script>
+    let teachersData = [];
+    let currentCategory = 'all';
+    let currentSearchTerm = '';
+    let currentTeacherPage = 1;
+    let currentAudioPages = {};
+
+    const isMobile = window.innerWidth <= 768;
+    const teachersPerPage = isMobile ? 5 : 10;
+    const audioPerPage = isMobile ? 3 : 5;
+    const maxRandomAudios = 5;  // 随机展示的最大音频数
+
+    const audioPlayer = document.getElementById('audioPlayer');
+    const playerBar = document.getElementById('playerBar');
+    const playerTitle = document.getElementById('playerTitle');
+    const playerTeacher = document.getElementById('playerTeacher');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+    const timeDisplay = document.getElementById('timeDisplay');
+
+    let currentAudio = null;
+
+    async function init() {
+        await loadData();
+        renderTeachers();
+        setupEventListeners();
+        setupPlayer();
+    }
+
+    async function loadData() {
+        try {
+            const response = await fetch('/audios.json');
+            if (!response.ok) throw new Error('JSON加载失败: ' + response.status);
+            const json = await response.json();
+            teachersData = [];
+            for (const catName in json.categories) {
+                const cat = json.categories[catName];
+                cat.teachers.forEach(teacher => {
+                    teacher.category = catName;
+                    teacher.description = teacher.description || '';
+                    teacher.audios.forEach(audio => {
+                        audio.url = audio.url.replace('http://', 'https://');
+                        audio.duration = 'N/A';
+                    });
+                    teachersData.push(teacher);
+                });
+            }
+        } catch (error) {
+            console.error('加载 JSON 失败:', error);
+            alert('数据加载失败，请检查audios.json文件');
+        }
+    }
+
+    function renderTeachers() {
+        const grid = document.getElementById('teachersGrid');
+        const noResults = document.getElementById('noResults');
+        const pagination = document.getElementById('teachersPagination');
+        
+        let filteredTeachers = teachersData;
+
+        if (currentCategory !== 'all') {
+            filteredTeachers = filteredTeachers.filter(t => t.category === currentCategory);
+        }
+
+        if (currentSearchTerm) {
+            // 搜索模式：收集所有匹配音频，随机选几个
+            let allMatchingAudios = [];
+            filteredTeachers.forEach(teacher => {
+                teacher.audios.forEach((audio, index) => {
+                    if (currentSearchTerm.toLowerCase() in audio.title.toLowerCase()) {
+                        allMatchingAudios.push({ teacher, audio, index });
+                    }
+                });
+            });
+
+            if (allMatchingAudios.length === 0) {
+                grid.style.display = 'none';
+                noResults.style.display = 'block';
+                pagination.innerHTML = '';
+                return;
+            }
+
+            // 随机排序并选前maxRandomAudios个
+            allMatchingAudios.sort(() => Math.random() - 0.5);
+            allMatchingAudios = allMatchingAudios.slice(0, maxRandomAudios);
+
+            grid.style.display = 'grid';
+            noResults.style.display = 'none';
+            pagination.innerHTML = '';  // 无分页
+
+            // 渲染每个匹配音频作为一个独立卡片
+            grid.innerHTML = allMatchingAudios.map(({ teacher, audio, index }) => `
+                <div class="teacher-card">
+                    <div class="teacher-header">
+                        <div class="teacher-avatar">${teacher.id}</div>
+                        <div class="teacher-info">
+                            <h3>${teacher.name}</h3>
+                            <span class="teacher-category">${teacher.category}</span>
+                        </div>
+                    </div>
+                    <div class="teacher-desc">${teacher.description}</div>
+                    <div class="audios-list">
+                        <div class="audio-item">
+                            <button class="play-btn" data-teacher-id="${teacher.id}" data-audio-index="${index}">▶</button>
+                            <span class="audio-title">${audio.title}</span>
+                            <span class="audio-duration">${audio.duration}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // 添加播放事件
+            grid.querySelectorAll('.play-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const teacherId = e.target.dataset.teacherId;
+                    const audioIndex = parseInt(e.target.dataset.audioIndex);
+                    playAudio(teacherId, audioIndex);
+                });
+            });
+        } else {
+            // 无搜索：原老师分页逻辑
+            if (filteredTeachers.length === 0) {
+                grid.style.display = 'none';
+                noResults.style.display = 'block';
+                pagination.innerHTML = '';
+                return;
+            }
+
+            const totalPages = Math.ceil(filteredTeachers.length / teachersPerPage);
+            const start = (currentTeacherPage - 1) * teachersPerPage;
+            const end = start + teachersPerPage;
+            const paginatedTeachers = filteredTeachers.slice(start, end);
+
+            grid.style.display = 'grid';
+            noResults.style.display = 'none';
+
+            grid.innerHTML = paginatedTeachers.map(teacher => `
+                <div class="teacher-card">
+                    <div class="teacher-header">
+                        <div class="teacher-avatar">${teacher.id}</div>
+                        <div class="teacher-info">
+                            <h3>${teacher.name}</h3>
+                            <span class="teacher-category">${teacher.category}</span>
+                        </div>
+                    </div>
+                    <div class="teacher-desc">${teacher.description}</div>
+                    <div class="audios-list" id="audios-${teacher.id}"></div>
+                    <div class="audio-pagination" id="audio-pagination-${teacher.id}"></div>
+                </div>
+            `).join('');
+
+            paginatedTeachers.forEach(teacher => renderAudios(teacher));
+
+            pagination.innerHTML = `
+                <button class="page-btn" ${currentTeacherPage === 1 ? 'disabled' : ''} onclick="changeTeacherPage(-1)">上一页</button>
+                <span>第 ${currentTeacherPage} / ${totalPages} 页</span>
+                <button class="page-btn" ${currentTeacherPage === totalPages ? 'disabled' : ''} onclick="changeTeacherPage(1)">下一页</button>
+            `;
+        }
+    }
+
+    function renderAudios(teacher) {
+        const audiosList = document.getElementById(`audios-${teacher.id}`);
+        const page = currentAudioPages[teacher.id] || 1;
+        const totalAudioPages = Math.ceil(teacher.audios.length / audioPerPage);
+        const start = (page - 1) * audioPerPage;
+        const end = start + audioPerPage;
+        const paginatedAudios = teacher.audios.slice(start, end);
+
+        audiosList.innerHTML = paginatedAudios.map((audio, index) => `
+            <div class="audio-item">
+                <button class="play-btn" data-teacher-id="${teacher.id}" data-audio-index="${start + index}">▶</button>
+                <span class="audio-title">${audio.title}</span>
+                <span class="audio-duration">${audio.duration}</span>
+            </div>
+        `).join('');
+
+        const audioPagination = document.getElementById(`audio-pagination-${teacher.id}`);
+        audioPagination.innerHTML = `
+            <button class="page-btn" ${page === 1 ? 'disabled' : ''} onclick="changeAudioPage('${teacher.id}', -1)">上一页</button>
+            <span>${page} / ${totalAudioPages}</span>
+            <button class="page-btn" ${page === totalAudioPages ? 'disabled' : ''} onclick="changeAudioPage('${teacher.id}', 1)">下一页</button>
+        `;
+
+        audiosList.querySelectorAll('.play-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const teacherId = e.target.dataset.teacherId;
+                const audioIndex = parseInt(e.target.dataset.audioIndex);
+                playAudio(teacherId, audioIndex);
+            });
+        });
+    }
+
+    function changeTeacherPage(delta) {
+        currentTeacherPage += delta;
+        renderTeachers();
+    }
+
+    function changeAudioPage(teacherId, delta) {
+        currentAudioPages[teacherId] = (currentAudioPages[teacherId] || 1) + delta;
+        const teacher = teachersData.find(t => t.id === teacherId);
+        renderAudios(teacher);
+    }
+
+    function playAudio(teacherId, audioIndex) {
+        const teacher = teachersData.find(t => t.id === teacherId);
+        const audio = teacher.audios[audioIndex];
+        
+        audioPlayer.src = audio.url;
+        audioPlayer.play().catch(e => {
+            console.error('播放失败:', e);
+            alert('无法播放: ' + e.message);
+        });
+        playerTitle.textContent = audio.title;
+        playerTeacher.textContent = teacher.name + ' - ' + teacher.category;
+        playerBar.classList.add('active');
+        playPauseBtn.textContent = '⏸';
+        
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            const duration = formatTime(audioPlayer.duration);
+            const durationSpan = document.querySelector(`[data-teacher-id="${teacherId}"][data-audio-index="${audioIndex}"] ~ .audio-duration`);
+            if (durationSpan && durationSpan.textContent === 'N/A') {
+                durationSpan.textContent = duration;
+            }
+        }, { once: true });
+    }
+
+    function setupPlayer() {
+        audioPlayer.addEventListener('timeupdate', () => {
+            const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+            progressFill.style.width = `${progress}%`;
+            timeDisplay.textContent = `${formatTime(audioPlayer.currentTime)} / ${formatTime(audioPlayer.duration)}`;
+        });
+
+        audioPlayer.addEventListener('ended', () => {
+            playPauseBtn.textContent = '▶';
+        });
+
+        playPauseBtn.addEventListener('click', () => {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                playPauseBtn.textContent = '⏸';
+            } else {
+                audioPlayer.pause();
+                playPauseBtn.textContent = '▶';
+            }
+        });
+
+        progressBar.addEventListener('click', (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            const offsetX = e.clientX - rect.left;
+            const progress = offsetX / rect.width;
+            audioPlayer.currentTime = progress * audioPlayer.duration;
+        });
+
+        document.getElementById('closePlayer').addEventListener('click', () => {
+            playerBar.classList.remove('active');
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
+        });
+    }
+
+    function formatTime(seconds) {
+        if (isNaN(seconds)) return '0:00';
+        const min = Math.floor(seconds / 60);
+        const sec = Math.floor(seconds % 60);
+        return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+    }
+
+    function setupEventListeners() {
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            currentSearchTerm = e.target.value;
+            currentTeacherPage = 1;  // 重置分页
+            renderTeachers();
+        });
+
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            currentSearchTerm = document.getElementById('searchInput').value;
+            currentTeacherPage = 1;
+            renderTeachers();
+        });
+
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                currentSearchTerm = e.target.value;
+                currentTeacherPage = 1;
+                renderTeachers();
+            }
+        });
+
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.dataset.category;
+                currentTeacherPage = 1;
+                renderTeachers();
+            });
+        });
+    }
+
+    window.changeTeacherPage = changeTeacherPage;
+    window.changeAudioPage = changeAudioPage;
+    init();
+</script>
