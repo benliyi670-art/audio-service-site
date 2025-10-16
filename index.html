@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专业配音服务 - 低预算出好配音</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: linear-gradient(135deg, #e8f4fd 0%, #d4e7f7 50%, #e0eefa 100%); min-height: 100vh; padding: 20px; position: relative; }
+        body::before { content: ''; position: fixed; top: -50%; right: -50%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%); pointer-events: none; z-index: 0; }
+        .container { max-width: 1400px; margin: 0 auto; background: rgba(255, 255, 255, 0.95); border-radius: 24px; box-shadow: 0 8px 32px rgba(102, 126, 234, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04); overflow: hidden; backdrop-filter: blur(20px); position: relative; z-index: 1; }
+        header { background: linear-gradient(135deg, #4facfe 0%, #667eea 50%, #764ba2 100%); color: white; padding: 50px 40px; text-align: center; box-shadow: 0 4px 24px rgba(79, 172, 254, 0.2); position: relative; overflow: hidden; }
+        header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%); animation: headerGlow 8s ease-in-out infinite; }
+        @keyframes headerGlow { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(30px, 30px); } }
+        header h1 { font-size: 2.8em; margin-bottom: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; position: relative; z-index: 1; }
+        header p { font-size: 1.5em; opacity: 0.95; font-weight: 600; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; position: relative; z-index: 1; }
+        .search-section { padding: 30px 40px; background: white; border-bottom: 1px solid rgba(79, 172, 254, 0.1); }
+        .search-box { display: flex; gap: 15px; flex-wrap: wrap; align-items: stretch; margin-bottom: 20px; }
+        .search-input-wrapper { flex: 1; min-width: 250px; display: flex; gap: 10px; }
+        .search-input { flex: 1; padding: 15px 20px; font-size: 16px; border: 2px solid rgba(79, 172, 254, 0.2); border-radius: 10px; transition: all 0.3s; background: white; }
+        .search-input:focus { outline: none; border-color: #4facfe; box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1); }
+        .search-btn { padding: 15px 30px; background: linear-gradient(135deg, #4facfe 0%, #667eea 100%); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; white-space: nowrap; box-shadow: 0 4px 16px rgba(79, 172, 254, 0.3); }
+        .search-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(79, 172, 254, 0.4); }
+        .search-btn:active { transform: translateY(0); }
+        .category-filters { display: flex; gap: 10px; flex-wrap: wrap; }
+        .category-btn { padding: 12px 24px; background: white; color: #4facfe; border: 2px solid rgba(79, 172, 254, 0.2); border-radius: 8px; cursor: pointer; transition: all 0.3s; font-size: 14px; font-weight: 600; }
+        .category-btn:hover { background: rgba(79, 172, 254, 0.05); border-color: #4facfe; }
+        .category-btn.active { background: linear-gradient(135deg, #4facfe 0%, #667eea 100%); color: white; border-color: #4facfe; box-shadow: 0 4px 16px rgba(79, 172, 254, 0.3); }
+        .content { padding: 40px; }
+        .stats { display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
+        .stat-card { flex: 1; min-width: 200px; padding: 25px; background: linear-gradient(135deg, #4facfe 0%, #667eea 100%); color: white; border-radius: 15px; text-align: center; box-shadow: 0 8px 24px rgba(79, 172, 254, 0.25); }
+        .stat-card h3 { font-size: 2.5em; margin-bottom: 8px; font-weight: 700; }
+        .stat-card p { opacity: 0.95; font-size: 1.1em; }
+        .teachers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin-top: 30px; }
+        .teacher-card { background: white; border: 1px solid rgba(79, 172, 254, 0.1); border-radius: 15px; padding: 25px; transition: all 0.3s; cursor: pointer; box-shadow: 0 2px 12px rgba(79, 172, 254, 0.08); }
+        .teacher-card:hover { transform: translateY(-5px); box-shadow: 0 12px 32px rgba(79, 172, 254, 0.15); border-color: rgba(79, 172, 254, 0.3); }
+        .teacher-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .teacher-avatar { width: 65px; height: 65px; background: linear-gradient(135deg, #4facfe 0%, #667eea 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 22px; font-weight: bold; box-shadow: 0 4px 16px rgba(79, 172, 254, 0.3); }
+        .teacher-info h3 { font-size: 1.4em; color: #333; margin-bottom: 6px; font-weight: 700; }
+        .teacher-category { display: inline-block; padding: 5px 12px; background: linear-gradient(135deg, #4facfe 0%, #667eea 100%); color: white; border-radius: 6px; font-size: 12px; font-weight: 600; box-shadow: 0 2px 8px rgba(79, 172, 254, 0.2); }
+        .teacher-desc { color: #6c757d; font-size: 14px; line-height: 1.7; margin-bottom: 15px; }
+        .audios-list { color: #6c757d; font-size: 14px; line-height: 1.7; margin-bottom: 15px; }
+        .audio-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(79, 172, 254, 0.03); border-radius: 10px; margin-bottom: 10px; transition: all 0.3s; border: 1px solid rgba(79, 172, 254, 0.1); }
+        .audio-item:hover { background: rgba(79, 172, 254, 0.08); border-color: rgba(79, 172, 254, 0.2); }
+        .play-btn { width: 40px; height: 40px; background: linear-gradient(135deg, #4facfe 0%, #667eea 100%); border: none; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; flex-shrink: 0; font-size: 14px; box-shadow: 0 3px 12px rgba(79, 172, 254, 0.3); }
+        .play-btn:hover { transform: scale(1.1); box-shadow: 0 5px 20px rgba(79, 172, 254, 0.4); }
+        .play-btn.playing { background: linear-gradient(135deg, #28a745 0%, #20803d 100%); }
+        .audio-title { flex: 1; font-size: 14px; color: #495057; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+        .audio-duration { font-size: 12px; color: #4facfe; font-weight: 600; }
+        .player-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.98); border-top: 2px solid #4facfe; padding: 20px; box-shadow: 0 -8px 32px rgba(79, 172, 254, 0.15); display: none; z-index: 1000; backdrop-filter: blur(20px); }
+        .player-bar.active { display: block; }
+        .player-content { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; gap: 20px; }
+        .player-info { flex: 1; }
+        .player-title { font-weight: 700; color: #333; margin-bottom: 5px; font-size: 16px; }
+        .player-teacher { font-size: 14px; color: #4facfe; font-weight: 600; }
+        .player-controls { display: flex; align-items: center; gap: 15px; flex: 2; }
+        .control-btn { width: 45px; height: 45px; background: linear-gradient(135deg, #4facfe 0%, #667eea 100%); border: none; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; flex-shrink: 0; box-shadow: 0 4px 16px rgba(79, 172, 254, 0.3); }
+        .control-btn:hover { transform: scale(1.1); }
+        .progress-bar { flex: 1; height: 8px; background: rgba(79, 172, 254, 0.15); border-radius: 4px; cursor: pointer; position: relative; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #4facfe 0%, #667eea 100%); border-radius: 4px; width: 0%; transition: width 0.1s; }
+        .time-display { font-size: 13px; color: #6c757d; font-weight: 600; white-space: nowrap; }
+        .no-results { text-align: center; padding: 80px 20px; color: #6c757d; }
+        .no-results h2 { font-size: 2.2em; margin-bottom: 15px; color: #4facfe; }
+        .no-results p { font-size: 1.1em; }
+        .pagination { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
+        .page-btn { padding: 10px 20px; background: linear-gradient(135deg, #4facfe 0%, #667eea 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .page-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .audio-pagination { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+        .close-btn { padding: 10px 15px; background: #dc3545; color: white; border: none; border-radius: 50%; cursor: pointer; font-weight: bold; }
+        .close-btn:hover { background: #c82333; }
+        @media (max-width: 768px) { header { padding: 40px 20px; } header h1 { font-size: 2em; flex-wrap: wrap; } header p { font-size: 1.1em; gap: 5px; } .search-section { padding: 20px; } .search-box { flex-direction: column; } .search-input-wrapper { width: 100%; flex-direction: column; } .search-btn { width: 100%; } .category-filters { justify-content: center; } .category-btn { flex: 1; min-width: calc(50% - 5px); } .content { padding: 20px; } .stats { gap: 15px; } .stat-card { min-width: 100%; } .teachers-grid { grid-template-columns: 1fr; } .player-content { flex-direction: column; gap: 15px; } .player-controls { width: 100%; flex-direction: column; gap: 10px; } .progress-bar { width: 100%; } .pagination, .audio-pagination { flex-direction: column; } .close-btn { margin-top: 10px; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .teacher-card { animation: fadeIn 0.5s ease-out; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>星辉文化 🎙️ 专业配音服务</h1>
+            <p>✨ 低预算出好配音 ✨ 优质老师 ✨ 多种音色 ✨</p>
+        </header>
+        <div class="search-section">
+            <div class="search-box">
+                <div class="search-input-wrapper">
+                    <input type="text" class="search-input" id="searchInput" placeholder="🔍 在此处搜索您想要的配音类型">
+                    <button class="search-btn" id="searchBtn">🔍 搜索</button>
+                </div>
+            </div>
+            <div class="category-filters">
+                <button class="category-btn active" data-category="all">全部</button>
+                <button class="category-btn" data-category="大咖男老师">大咖男老师</button>
+                <button class="category-btn" data-category="大咖女老师">大咖女老师</button>
+                <button class="category-btn" data-category="顶尖男老师">顶尖男老师</button>
+                <button class="category-btn" data-category="顶尖女老师">顶尖女老师</button>
+                <button class="category-btn" data-category="普通男老师">普通男老师</button>
+                <button class="category-btn" data-category="普通女老师">普通女老师</button>
+            </div>
+        </div>
+        <div class="content">
+            <div class="stats">
+                <div class="stat-card">
+                    <h3 id="totalTeachers">235</h3>
+                    <p>配音老师</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="totalAudios">3931</h3>
+                    <p>音频作品</p>
+                </div>
+                <div class="stat-card">
+                    <h3>6</h3>
+                    <p>专业分类</p>
+                </div>
+            </div>
+            <div class="teachers-grid" id="teachersGrid"></div>
+            <div class="pagination" id="teachersPagination"></div>
+            <div class="no-results" id="noResults" style="display: none;">
+                <h2>😕 没有找到相关内容</h2>
+                <p>请尝试其他搜索关键词或选择不同分类</p>
+            </div>
+        </div>
+    </div>
+    <div class="player-bar" id="playerBar">
+        <div class="player-content">
+            <div class="player-info">
+                <div class="player-title" id="playerTitle">未播放</div>
+                <div class="player-teacher" id="playerTeacher">-</div>
+            </div>
+            <div class="player-controls">
+                <button class="control-btn" id="playPauseBtn">▶</button>
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+            </div>
+            <button class="close-btn" id="closePlayer">X</button>
+        </div>
+    </div>
+    <audio id="audioPlayer"></audio>
+    <script>
+        let teachersData = []; let currentCategory = 'all'; let currentSearchTerm = ''; let currentTeacherPage = 1; let currentAudioPages = {}; const isMobile = window.innerWidth <= 768; const teachersPerPage = isMobile ? 5 : 10; const audioPerPage = isMobile ? 3 : 5; const audioPlayer = document.getElementById('audioPlayer'); const playerBar = document.getElementById('playerBar'); const playerTitle = document.getElementById('playerTitle'); const playerTeacher = document.getElementById('playerTeacher'); const playPauseBtn = document.getElementById('playPauseBtn'); const progressBar = document.getElementById('progressBar'); const progressFill = document.getElementById('progressFill'); const timeDisplay = document.getElementById('timeDisplay'); let currentAudio = null; async function init() { await loadData(); renderTeachers(); updateStats(); setupEventListeners(); setupPlayer(); } async function loadData() { try { const response = await fetch('/audios.json'); const json = await response.json(); teachersData = []; for (const catName in json.categories) { const cat = json.categories[catName]; cat.teachers.forEach(teacher => { const teacherEntry = { id: teacher.id, name: teacher.name, category: catName, description: teacher.description || '', audios: teacher.audios.map(audio => ({ title: audio.title, style: audio.style || '', url: audio.url.replace('http://', 'https://'), duration: 'N/A' })) }; teachersData.push(teacherEntry); }); } } catch (error) { console.error('加载 JSON 失败:', error); } } function renderTeachers() { const grid = document.getElementById('teachersGrid'); const noResults = document.getElementById('noResults'); let filteredTeachers = teachersData; if (currentCategory !== 'all') { filteredTeachers = filteredTeachers.filter(t => t.category === currentCategory); } if (currentSearchTerm) { const term = currentSearchTerm.toLowerCase(); filteredTeachers = filteredTeachers.filter(t => t.id.toLowerCase().includes(term) || t.name.toLowerCase().includes(term) || t.audios.some(a => a.title.toLowerCase().includes(term))); } if (filteredTeachers.length === 0) { grid.style.display = 'none'; noResults.style.display = 'block'; return; } grid.style.display = 'grid'; noResults.style.display = 'none'; const totalPages = Math.ceil(filteredTeachers.length / teachersPerPage); const start = (currentTeacherPage - 1) * teachersPerPage; const end = start + teachersPerPage; const paginatedTeachers = filteredTeachers.slice(start, end); grid.innerHTML = paginatedTeachers.map(teacher => { currentAudioPages[teacher.id] = currentAudioPages[teacher.id] || 1; return `<div class="teacher-card"><div class="teacher-header"><div class="teacher-avatar">${teacher.id}</div><div class="teacher-info"><h3>${teacher.name}</h3><span class="teacher-category">${teacher.category}</span></div></div><div class="teacher-desc">${teacher.description}</div><div class="audios-list" id="audios-${teacher.id}"></div><div class="audio-pagination" id="audio-pagination-${teacher.id}"></div></div>`; }).join(''); paginatedTeachers.forEach(teacher => renderAudios(teacher)); const pagination = document.getElementById('teachersPagination'); pagination.innerHTML = `<button class="page-btn" ${currentTeacherPage === 1 ? 'disabled' : ''} onclick="changeTeacherPage(-1)">上一页</button><span>第 ${currentTeacherPage} / ${totalPages} 页</span><button class="page-btn" ${currentTeacherPage === totalPages ? 'disabled' : ''} onclick="changeTeacherPage(1)">下一页</button>`; } function renderAudios(teacher) { const audiosList = document.getElementById(`audios-${teacher.id}`); const page = currentAudioPages[teacher.id]; const totalAudioPages = Math.ceil(teacher.audios.length / audioPerPage); const start = (page - 1) * audioPerPage; const end = start + audioPerPage; const paginatedAudios = teacher.audios.slice(start, end); audiosList.innerHTML = paginatedAudios.map((audio, index) => { const audioTitle = audio.style ? `${audio.title} (${audio.style})` : audio.title; return `<div class="audio-item"><button class="play-btn" data-teacher-id="${teacher.id}" data-audio-index="${start + index}">▶</button><span class="audio-title">${audioTitle}</span><span class="audio-duration">${audio.duration}</span></div>`; }).join(''); const audioPagination = document.getElementById(`audio-pagination-${teacher.id}`); audioPagination.innerHTML = `<button class="page-btn" ${page === 1 ? 'disabled' : ''} onclick="changeAudioPage('${teacher.id}', -1)">上</button><span>${page} / ${totalAudioPages}</span><button class="page-btn" ${page === totalAudioPages ? 'disabled' : ''} onclick="changeAudioPage('${teacher.id}', 1)">下</button>`; audiosList.querySelectorAll('.play-btn').forEach(btn => { btn.addEventListener('click', (e) => { const teacherId = e.target.dataset.teacherId; const audioIndex = parseInt(e.target.dataset.audioIndex); playAudio(teacherId, audioIndex); }); }); } function changeTeacherPage(delta) { currentTeacherPage += delta; renderTeachers(); } function changeAudioPage(teacherId, delta) { currentAudioPages[teacherId] += delta; const teacher = teachersData.find(t => t.id === teacherId); renderAudios(teacher); } function updateStats() { document.getElementById('totalTeachers').textContent = 235; document.getElementById('totalAudios').textContent = 3931; } function playAudio(teacherId, audioIndex) { const teacher = teachersData.find(t => t.id === teacherId); const audio = teacher.audios[audioIndex]; audioPlayer.src = audio.url; audioPlayer.play(); playerTitle.textContent = audio.title; playerTeacher.textContent = teacher.name + ' - ' + teacher.category; playerBar.classList.add('active'); playPauseBtn.textContent = '⏸'; currentAudio = { teacherId, audioIndex }; audioPlayer.addEventListener('loadedmetadata', () => { const duration = formatTime(audioPlayer.duration); const durationSpan = document.querySelector(`[data-teacher-id="${teacherId}"][data-audio-index="${audioIndex}"] ~ .audio-duration`); if (durationSpan && durationSpan.textContent === 'N/A') { durationSpan.textContent = duration; } }, { once: true }); } function setupPlayer() { audioPlayer.addEventListener('timeupdate', () => { const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100; progressFill.style.width = `${progress}%`; timeDisplay.textContent = `${formatTime(audioPlayer.currentTime)} / ${formatTime(audioPlayer.duration)}`; }); audioPlayer.addEventListener('ended', () => { playPauseBtn.textContent = '▶'; }); playPauseBtn.addEventListener('click', () => { if (audioPlayer.paused) { audioPlayer.play(); playPauseBtn.textContent = '⏸'; } else { audioPlayer.pause(); playPauseBtn.textContent = '▶'; } }); progressBar.addEventListener('click', (e) => { const rect = progressBar.getBoundingClientRect(); const offsetX = e.clientX - rect.left; const progress = offsetX / rect.width; audioPlayer.currentTime = progress * audioPlayer.duration; }); document.getElementById('closePlayer').addEventListener('click', () => { playerBar.classList.remove('active'); audioPlayer.pause(); audioPlayer.currentTime = 0; }); } function formatTime(seconds) { if (isNaN(seconds)) return '0:00'; const min = Math.floor(seconds / 60); const sec = Math.floor(seconds % 60); return `${min}:${sec < 10 ? '0' : ''}${sec}`; } function setupEventListeners() { document.getElementById('searchInput').addEventListener('input', (e) => { currentSearchTerm = e.target.value.toLowerCase(); renderTeachers(); }); document.getElementById('searchBtn').addEventListener('click', () => { currentSearchTerm = document.getElementById('searchInput').value.toLowerCase(); renderTeachers(); }); document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') { currentSearchTerm = e.target.value.toLowerCase(); renderTeachers(); } }); document.querySelectorAll('.category-btn').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); currentCategory = btn.dataset.category; renderTeachers(); }); }); } window.changeTeacherPage = changeTeacherPage; window.changeAudioPage = changeAudioPage; init();
+    </script>
+</body>
+</html>
